@@ -47,37 +47,6 @@ def extract_odd_vertices(adj_mat):
     return odds
 
 
-def reachable(adj, vertex, visited):
-    """
-    :param adj: the graph adjacency list
-    :param vertex: the current vertex
-    :param visited: the list of visited vertices
-    :return: the number of vertices connected to vertex
-
-    This algorithm is based on a DFS an will be useful to find if we did not remove
-    an important edge when finding an eulerian path
-    """
-
-    res = 1
-    visited[vertex] = True
-    for dst in adj[vertex]:
-        if not visited[dst]:
-            res += reachable(adj, dst, visited)
-    return res
-
-
-def odd_vertices(adj_list):
-    """
-    :param adj_list: the graph adj list
-    :return: a list of all the odd degree vertices
-    """
-    res = []
-    for i in range(len(adj_list)):
-        if len(adj_list[i]) % 2 == 1:
-            res.append(i)
-    return res
-
-
 def remove_edge(adj, vertex, dest, is_directed=False):
     """
     function used in eulerian path

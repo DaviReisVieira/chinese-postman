@@ -9,6 +9,21 @@ class EulerianPathSolver:
         self.edges = edges.copy()
         self.n = n
 
+    def reachable(self, adj, vertex, visited):
+        """
+        :param adj: the graph adjacency list
+        :param vertex: the current vertex
+        :param visited: the list of visited vertices
+        :return: the number of vertices connected to vertex
+        """
+
+        res = 1
+        visited[vertex] = True
+        for dst in adj[vertex]:
+            if not visited[dst]:
+                res += self.reachable(adj, dst, visited)
+        return res
+
     def is_bridge(self, adj, start, dst):
         """
         :param adj: graph's adjacency list
@@ -21,30 +36,19 @@ class EulerianPathSolver:
             utils.remove_edge(adj, start, dst)
             return False
 
-        count_1 = utils.reachable(adj, start, [False] * len(adj))
+        count_1 = self.reachable(adj, start, [False] * len(adj))
         utils.remove_edge(adj, start, dst)
 
-        if count_1 == utils.reachable(adj, start, [False] * len(adj)):
+        if count_1 == self.reachable(adj, start, [False] * len(adj)):
             return False
         adj[start].append(dst)
         adj[dst].append(start)
         return True
 
-    def path_aux(self, adj, start, res):
-        """
-        recursive function to find an eulerian path
-        :param res the resulting path
-        """
-        for dst in adj[start]:
-            if not self.is_bridge(adj, start, dst):
-                res.append(dst)
-                self.path_aux(adj, dst, res)
-
     def find_eulerian_path(self, edges):
         """
-        :return: an array with the vertices to go through in order to have an eulerian path/cycle
-
-        the graph is undirected
+        :param edges: the graph's edges
+        :return: the eulerian path of the graph
         """
         start = 0
         adj = utils.adj_list(edges, self.n)
@@ -58,7 +62,14 @@ class EulerianPathSolver:
                 break
 
         res = [start]
-        self.path_aux(adj, start, res)
+
+        def path_aux(adj, start):
+            for dst in adj[start]:
+                if not self.is_bridge(adj, start, dst):
+                    res.append(dst)
+                    path_aux(adj, dst)
+
+        path_aux(adj, start)
 
         return res
 
@@ -139,8 +150,6 @@ class EulerianPathSolver:
             pairs.append([])
             for j in range(i + 1, len(odd_vertices)):
                 pairs[i].append([odd_vertices[i], odd_vertices[j]])
-
-        # [ [AB, AC, AD] , [ BC, BD], [ CD]  ]
 
         matchings = []
 
